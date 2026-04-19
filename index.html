@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
@@ -7,44 +8,490 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap');
 
-  :root {
-    --g: #00FF94;
-    --bg: #0A0A0F;
-    --card: #111118;
-    --border: #1E1E2E;
+:root {
+–g: #00FF94;
+–bg: #0A0A0F;
+–card: #111118;
+–border: #1E1E2E;
+}
+
+- { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(–bg); color: #E8E8F0; font-family: ‘DM Mono’, monospace; min-height: 100vh; }
+
+.app { min-height: 100vh; padding: 28px 16px 60px; position: relative; overflow: hidden; }
+.app::before { content:’’; position:fixed; top:-200px; left:-200px; width:600px; height:600px; background:radial-gradient(circle,rgba(0,255,148,.06),transparent 70%); pointer-events:none; z-index:0; }
+.app::after { content:’’; position:fixed; bottom:-150px; right:-150px; width:500px; height:500px; background:radial-gradient(circle,rgba(100,60,255,.07),transparent 70%); pointer-events:none; z-index:0; }
+
+.wrap { max-width: 640px; margin: 0 auto; position: relative; z-index: 1; }
+
+.header { text-align: center; margin-bottom: 36px; }
+.badge { display:inline-block; background:rgba(0,255,148,.1); border:1px solid rgba(0,255,148,.3); color:var(–g); font-size:10px; letter-spacing:3px; text-transform:uppercase; padding:6px 14px; border-radius:20px; margin-bottom:18px; }
+h1 { font-family:‘Syne’,sans-serif; font-size:clamp(28px,7vw,50px); font-weight:800; line-height:1.05; letter-spacing:-2px; color:#fff; margin-bottom:10px; }
+h1 span { color: var(–g); }
+.sub { font-size:12px; color:#6B6B80; line-height:1.6; }
+
+.card { background:var(–card); border:1px solid var(–border); border-radius:16px; padding:22px; margin-bottom:16px; }
+.lbl { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#555570; margin-bottom:12px; }
+
+/* API Key */
+.key-row { display:flex; gap:8px; }
+.key-input { flex:1; background:#0A0A0F; border:1px solid #2A2A3E; border-radius:10px; color:#E8E8F0; font-family:‘DM Mono’,monospace; font-size:12px; padding:12px 14px; outline:none; transition:border-color .2s; min-width:0; }
+.key-input:focus { border-color:rgba(0,255,148,.4); }
+.key-input::placeholder { color:#2A2A3E; }
+.key-btn { background:rgba(0,255,148,.1); border:1px solid rgba(0,255,148,.3); border-radius:10px; color:var(–g); font-family:‘DM Mono’,monospace; font-size:11px; padding:12px 16px; cursor:pointer; white-space:nowrap; }
+.key-saved { display:flex; align-items:center; gap:8px; background:rgba(0,255,148,.06); border:1px solid rgba(0,255,148,.15); border-radius:10px; padding:11px 14px; font-size:11px; color:#6B8B78; }
+.key-saved strong { color:var(–g); margin-right:auto; }
+.key-change { background:none; border:none; color:#555570; font-family:‘DM Mono’,monospace; font-size:10px; cursor:pointer; text-decoration:underline; }
+
+/* Drop */
+.dropzone { border:2px dashed #2A2A3E; border-radius:14px; padding:40px 20px; text-align:center; cursor:pointer; transition:all .2s; }
+.dropzone:hover, .dropzone.over { border-color:rgba(0,255,148,.5); background:rgba(0,255,148,.03); }
+.drop-icon { font-size:38px; margin-bottom:12px; }
+.drop-title { font-family:‘Syne’,sans-serif; font-size:15px; font-weight:700; color:#E8E8F0; margin-bottom:6px; }
+.drop-sub { font-size:11px; color:#555570; line-height:1.7; }
+
+.preview { display:flex; align-items:center; gap:14px; background:#0D0D15; border:1px solid #1A1A28; border-radius:12px; padding:14px; }
+.preview-icon { width:48px; height:48px; border-radius:8px; background:#1A1A28; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.preview-info { flex:1; min-width:0; }
+.preview-name { font-size:12px; color:#E8E8F0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px; }
+.preview-meta { font-size:10px; color:#555570; }
+.preview-rm { background:none; border:none; color:#555570; cursor:pointer; font-size:16px; padding:4px; flex-shrink:0; }
+
+/* Chips */
+.chips { display:flex; gap:7px; flex-wrap:wrap; }
+.chip { background:transparent; border:1px solid #2A2A3E; border-radius:20px; color:#666680; font-family:‘DM Mono’,monospace; font-size:11px; padding:5px 11px; cursor:pointer; transition:all .15s; }
+.chip.on { border-color:var(–g); color:var(–g); background:rgba(0,255,148,.08); }
+
+/* Button */
+.btn { background:var(–g); color:#000; border:none; border-radius:10px; font-family:‘Syne’,sans-serif; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:15px; cursor:pointer; width:100%; transition:all .2s; margin-top:14px; }
+.btn:hover:not(:disabled) { background:#00ffb3; }
+.btn:disabled { opacity:.4; cursor:not-allowed; }
+
+/* Loader */
+#loader { display:none; }
+.ring { width:44px; height:44px; border:2px solid #1E1E2E; border-top-color:var(–g); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 16px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.ltxt { font-size:13px; color:#E8E8F0; font-family:‘Syne’,sans-serif; font-weight:700; margin-bottom:4px; }
+.lsub { font-size:11px; color:#555570; margin-bottom:16px; }
+.prog-bg { width:100%; height:4px; background:#1E1E2E; border-radius:2px; overflow:hidden; margin-bottom:16px; }
+.prog-fill { height:100%; background:var(–g); border-radius:2px; transition:width .6s ease; width:0%; }
+.lsteps { display:flex; flex-direction:column; gap:5px; align-items:center; }
+.lstep { font-size:11px; color:#333345; transition:color .3s; }
+.lstep.on { color:var(–g); }
+.lstep.done { color:#444458; }
+
+/* Results */
+#results { display:none; }
+.hero { text-align:center; padding:14px 0 22px; border-bottom:1px solid #1A1A28; margin-bottom:22px; }
+.big { font-family:‘Syne’,sans-serif; font-size:68px; font-weight:800; line-height:1; letter-spacing:-4px; }
+.hero-lbl { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:#555570; margin-top:7px; }
+.bar { width:100px; height:3px; background:#1E1E2E; border-radius:2px; margin:12px auto 0; overflow:hidden; }
+.bar-fill { height:100%; border-radius:2px; }
+.sgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
+.sc { background:#0D0D15; border:1px solid #1A1A28; border-radius:12px; padding:14px 10px; text-align:center; }
+.sv { font-family:‘Syne’,sans-serif; font-size:26px; font-weight:800; line-height:1; margin-bottom:5px; }
+.sl { font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:#444458; }
+.stitle { font-family:‘Syne’,sans-serif; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#888899; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.stitle::after { content:’’; flex:1; height:1px; background:#1E1E2E; }
+.iitem { display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid #141420; }
+.iitem:last-child { border-bottom:none; }
+.iico { width:26px; height:26px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; margin-top:1px; }
+.itxt { font-size:12px; line-height:1.6; color:#AAABB8; }
+.itxt strong { color:#E8E8F0; font-family:‘Syne’,sans-serif; font-weight:600; display:block; margin-bottom:1px; font-size:12px; }
+.alist { display:flex; flex-direction:column; gap:7px; }
+.aitem { display:flex; align-items:flex-start; gap:9px; background:#0D0D15; border:1px solid #1A1A28; border-radius:9px; padding:11px 13px; font-size:12px; line-height:1.5; color:#AAABB8; }
+.anum { font-family:‘Syne’,sans-serif; font-size:10px; font-weight:700; color:var(–g); background:rgba(0,255,148,.1); border-radius:5px; padding:2px 6px; flex-shrink:0; margin-top:1px; }
+.hlist { display:flex; flex-direction:column; gap:7px; }
+.hitem { background:rgba(0,255,148,.04); border:1px solid rgba(0,255,148,.15); border-radius:9px; padding:11px 13px; font-size:12px; color:#CCCCDD; line-height:1.5; cursor:pointer; transition:all .15s; }
+.hitem:hover { background:rgba(0,255,148,.08); border-color:rgba(0,255,148,.3); }
+.tags { display:flex; flex-wrap:wrap; gap:7px; }
+.tag { background:#0D0D15; border:1px solid #2A2A3E; border-radius:20px; color:#8888AA; font-size:11px; padding:4px 11px; }
+.err-box { background:rgba(255,60,60,.06); border:1px solid rgba(255,60,60,.2); border-radius:10px; padding:14px 16px; color:#FF6B6B; font-size:12px; line-height:1.6; }
+.rbtn { background:transparent; border:1px solid #2A2A3E; border-radius:8px; color:#6B6B80; font-family:‘DM Mono’,monospace; font-size:11px; padding:8px 16px; cursor:pointer; margin-top:14px; }
+#error-section { display:none; }
+</style>
+
+</head>
+<body>
+<div class="app">
+  <div class="wrap">
+
+```
+<div class="header">
+  <div class="badge">Gemini × TikTok</div>
+  <h1>Rends ta vidéo<br><span>virale</span></h1>
+  <p class="sub">Envoie ta vidéo — Gemini la regarde en entier<br>et te donne un plan d'action concret.</p>
+</div>
+
+<!-- API Key -->
+<div class="card" id="key-card">
+  <p class="lbl">Clé API Gemini</p>
+  <div id="key-edit">
+    <div class="key-row">
+      <input class="key-input" id="key-input" type="password" placeholder="AIzaSy..." />
+      <button class="key-btn" onclick="saveKey()">Valider</button>
+    </div>
+    <p style="font-size:11px;color:#555570;margin-top:8px;">
+      Obtiens ta clé gratuite sur <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:rgba(0,255,148,.7)">aistudio.google.com</a>
+    </p>
+  </div>
+  <div id="key-saved" style="display:none" class="key-saved">
+    <strong>✓ Clé configurée</strong>
+    <button class="key-change" onclick="changeKey()">Modifier</button>
+  </div>
+</div>
+
+<!-- Upload -->
+<div class="card" id="upload-card">
+  <p class="lbl">Ta vidéo TikTok</p>
+  <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()"
+       ondragover="event.preventDefault();this.classList.add('over')"
+       ondragleave="this.classList.remove('over')"
+       ondrop="onDrop(event)">
+    <input type="file" id="file-input" accept="video/*" style="display:none" onchange="handleFile(this.files[0])"/>
+    <div class="drop-icon">🎬</div>
+    <div class="drop-title">Appuie pour choisir ta vidéo</div>
+    <div class="drop-sub">MP4, MOV, WebM · Toutes tailles<br>Gemini regarde la vidéo en entier</div>
+  </div>
+  <div id="file-preview" style="display:none" class="preview">
+    <div class="preview-icon">🎬</div>
+    <div class="preview-info">
+      <div class="preview-name" id="file-name"></div>
+      <div class="preview-meta" id="file-meta"></div>
+    </div>
+    <button class="preview-rm" onclick="clearFile()">✕</button>
+  </div>
+
+  <p class="lbl" style="margin-top:20px">Ta niche</p>
+  <div class="chips" id="chips"></div>
+
+  <button class="btn" id="analyze-btn" onclick="analyze()" disabled>Sélectionne une vidéo d'abord</button>
+</div>
+
+<!-- Loader -->
+<div class="card" id="loader" style="text-align:center;padding:44px 20px">
+  <div class="ring"></div>
+  <p class="ltxt" id="step-title">Chargement...</p>
+  <p class="lsub" id="step-sub"></p>
+  <div class="prog-bg"><div class="prog-fill" id="prog"></div></div>
+  <div class="lsteps" id="lsteps"></div>
+</div>
+
+<!-- Error -->
+<div class="card" id="error-section">
+  <div class="err-box" id="err-msg"></div>
+  <button class="rbtn" onclick="resetError()">← Réessayer</button>
+</div>
+
+<!-- Results -->
+<div id="results">
+  <div class="card">
+    <div class="hero">
+      <div class="big" id="r-viral"></div>
+      <p class="hero-lbl">Score de potentiel viral</p>
+      <div class="bar"><div class="bar-fill" id="r-viral-bar"></div></div>
+    </div>
+    <div class="sgrid">
+      <div class="sc"><div class="sv" id="r-hook"></div><div class="sl">Hook</div></div>
+      <div class="sc"><div class="sv" id="r-ret"></div><div class="sl">Rétention</div></div>
+      <div class="sc"><div class="sv" id="r-eng"></div><div class="sl">Engagement</div></div>
+    </div>
+    <p id="r-summary" style="font-size:13px;color:#AAABB8;line-height:1.7"></p>
+  </div>
+  <div class="card">
+    <p class="stitle">Points forts</p>
+    <div id="r-strengths" style="margin-bottom:20px"></div>
+    <p class="stitle">À améliorer</p>
+    <div id="r-weaknesses"></div>
+  </div>
+  <div class="card">
+    <p class="stitle">Plan d'action</p>
+    <div class="alist" id="r-actions"></div>
+  </div>
+  <div class="card">
+    <p class="stitle">Hooks alternatifs</p>
+    <p style="font-size:11px;color:#555570;margin-bottom:12px">Appuie pour copier</p>
+    <div class="hlist" id="r-hooks"></div>
+  </div>
+  <div class="card">
+    <p class="stitle">Hashtags recommandés</p>
+    <div class="tags" id="r-tags"></div>
+  </div>
+  <div style="text-align:center">
+    <button class="rbtn" onclick="resetAll()">← Analyser une autre vidéo</button>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<script>
+const NICHES = ["Cheveux naturels","Beauty","Lifestyle","Food","Fitness","Finance","Mode","Dev perso"];
+const STEPS = ["Upload de la vidéo...","Traitement par Gemini...","Analyse de la vidéo...","Génération des conseils..."];
+const SUBS = ["Upload en cours, patiente…","Google traite ta vidéo (30-60s)…","Gemini regarde ta vidéo en entier…","Presque terminé…"];
+
+let apiKey = "";
+let selectedFile = null;
+let selectedNiche = "Cheveux naturels";
+
+// Init chips
+const chipsEl = document.getElementById("chips");
+NICHES.forEach(n => {
+  const b = document.createElement("button");
+  b.className = "chip" + (n === selectedNiche ? " on" : "");
+  b.textContent = n;
+  b.onclick = () => {
+    selectedNiche = n;
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
+    b.classList.add("on");
+  };
+  chipsEl.appendChild(b);
+});
+
+// Init steps
+const lstepsEl = document.getElementById("lsteps");
+STEPS.forEach((s, i) => {
+  const sp = document.createElement("span");
+  sp.className = "lstep";
+  sp.id = "lstep-" + i;
+  sp.textContent = "○ " + s;
+  lstepsEl.appendChild(sp);
+});
+
+function saveKey() {
+  const val = document.getElementById("key-input").value.trim();
+  if (!val) return;
+  apiKey = val;
+  document.getElementById("key-edit").style.display = "none";
+  document.getElementById("key-saved").style.display = "flex";
+}
+function changeKey() {
+  document.getElementById("key-edit").style.display = "block";
+  document.getElementById("key-saved").style.display = "none";
+  apiKey = "";
+}
+
+function fmtSize(b) { return b > 1e6 ? (b/1e6).toFixed(1)+" Mo" : (b/1e3).toFixed(0)+" Ko"; }
+
+function handleFile(f) {
+  if (!f) return;
+  selectedFile = f;
+  document.getElementById("dropzone").style.display = "none";
+  document.getElementById("file-preview").style.display = "flex";
+  document.getElementById("file-name").textContent = f.name;
+  document.getElementById("file-meta").textContent = fmtSize(f.size) + " · " + (f.type || "vidéo");
+  const btn = document.getElementById("analyze-btn");
+  btn.disabled = false;
+  btn.textContent = "Analyser ma vidéo →";
+}
+function clearFile() {
+  selectedFile = null;
+  document.getElementById("dropzone").style.display = "block";
+  document.getElementById("file-preview").style.display = "none";
+  document.getElementById("file-input").value = "";
+  const btn = document.getElementById("analyze-btn");
+  btn.disabled = true;
+  btn.textContent = "Sélectionne une vidéo d'abord";
+}
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById("dropzone").classList.remove("over");
+  handleFile(e.dataTransfer?.files?.[0]);
+}
+
+function setProgress(p) { document.getElementById("prog").style.width = p + "%"; }
+function setStep(i) {
+  document.getElementById("step-title").textContent = STEPS[i];
+  document.getElementById("step-sub").textContent = SUBS[i];
+  STEPS.forEach((_, j) => {
+    const el = document.getElementById("lstep-" + j);
+    if (j < i) { el.className = "lstep done"; el.textContent = "✓ " + STEPS[j]; }
+    else if (j === i) { el.className = "lstep on"; el.textContent = "▶ " + STEPS[j]; }
+    else { el.className = "lstep"; el.textContent = "○ " + STEPS[j]; }
+  });
+}
+
+function scoreColor(s) {
+  if (s >= 80) return "#00FF94";
+  if (s >= 60) return "#FFD166";
+  if (s >= 40) return "#F4A261";
+  return "#FF6B6B";
+}
+
+function showError(msg) {
+  document.getElementById("loader").style.display = "none";
+  document.getElementById("error-section").style.display = "block";
+  document.getElementById("err-msg").textContent = msg;
+}
+function resetError() {
+  document.getElementById("error-section").style.display = "none";
+  document.getElementById("upload-card").style.display = "block";
+}
+function resetAll() {
+  document.getElementById("results").style.display = "none";
+  document.getElementById("upload-card").style.display = "block";
+  clearFile();
+}
+
+async function analyze() {
+  if (!selectedFile) return;
+  if (!apiKey) { alert("Entre d'abord ta clé API Gemini."); return; }
+
+  document.getElementById("upload-card").style.display = "none";
+  document.getElementById("results").style.display = "none";
+  document.getElementById("error-section").style.display = "none";
+  document.getElementById("loader").style.display = "block";
+  setStep(0); setProgress(5);
+
+  try {
+    // UPLOAD — resumable
+    const startRes = await fetch(
+      `https://generativelanguage.googleapis.com/upload/v1beta/files?uploadType=resumable&key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Upload-Protocol": "resumable",
+          "X-Goog-Upload-Command": "start",
+          "X-Goog-Upload-Header-Content-Length": selectedFile.size,
+          "X-Goog-Upload-Header-Content-Type": selectedFile.type || "video/mp4",
+        },
+        body: JSON.stringify({ file: { display_name: selectedFile.name } })
+      }
+    );
+    if (!startRes.ok) { const t = await startRes.text(); throw new Error("Erreur démarrage upload : " + t); }
+
+    const uploadUrl = startRes.headers.get("X-Goog-Upload-URL");
+    if (!uploadUrl) throw new Error("URL d'upload non reçue.");
+    setProgress(15);
+
+    const uploadRes = await fetch(uploadUrl, {
+      method: "POST",
+      headers: {
+        "Content-Length": selectedFile.size,
+        "X-Goog-Upload-Offset": "0",
+        "X-Goog-Upload-Command": "upload, finalize",
+      },
+      body: selectedFile
+    });
+    if (!uploadRes.ok) { const t = await uploadRes.text(); throw new Error("Erreur upload : " + t); }
+
+    const uploadData = await uploadRes.json();
+    const fileUri = uploadData?.file?.uri;
+    const fileName = uploadData?.file?.name;
+    const mimeType = uploadData?.file?.mimeType || selectedFile.type || "video/mp4";
+    if (!fileUri) throw new Error("URI fichier non reçu.");
+
+    setStep(1); setProgress(40);
+
+    // WAIT FOR ACTIVE
+    let tries = 0;
+    while (tries < 30) {
+      await new Promise(r => setTimeout(r, 3000));
+      const sr = await fetch(`https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${apiKey}`);
+      const sd = await sr.json();
+      if (sd?.file?.state === "ACTIVE") break;
+      if (sd?.file?.state === "FAILED") throw new Error("Traitement vidéo échoué côté Google.");
+      tries++;
+      setProgress(Math.min(40 + tries * 2, 65));
+    }
+
+    setStep(2); setProgress(70);
+
+    // GENERATE
+    const prompt = `Tu es un expert TikTok spécialisé dans la croissance virale. Niche : "${selectedNiche}".
+
+Regarde cette vidéo TikTok en entier et analyse : hook des premières secondes, rythme, transitions, textes à l'écran, mouvements de caméra, qualité visuelle, éclairage, sous-titres, présence d'un CTA, musique, durée.
+
+Retourne UNIQUEMENT un JSON valide, sans markdown, sans backticks :
+
+{
+  "viralScore": <0-100>,
+  "hookScore": <0-100>,
+  "retentionScore": <0-100>,
+  "engagementScore": <0-100>,
+  "summary": "<2-3 phrases de diagnostic précis>",
+  "strengths": [
+    {"icon": "✅", "title": "<point fort>", "desc": "<explication>"},
+    {"icon": "✅", "title": "<point fort>", "desc": "<explication>"}
+  ],
+  "weaknesses": [
+    {"icon": "⚠️", "title": "<point faible>", "desc": "<explication>"},
+    {"icon": "⚠️", "title": "<point faible>", "desc": "<explication>"}
+  ],
+  "actions": ["<action #1>","<action #2>","<action #3>","<action #4>","<action #5>"],
+  "hooks": ["<hook #1 en français>","<hook #2>","<hook #3>"],
+  "hashtags": ["#tag1","#tag2","#tag3","#tag4","#tag5","#tag6","#tag7","#tag8"]
+}`;
+
+    const genRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [
+            { file_data: { mime_type: mimeType, file_uri: fileUri } },
+            { text: prompt }
+          ]}],
+          generationConfig: { temperature: 0.4 }
+        })
+      }
+    );
+
+    setStep(3); setProgress(90);
+    const genData = await genRes.json();
+    if (genData?.error) throw new Error(genData.error.message);
+    const txt = genData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    if (!txt) throw new Error("Réponse vide de Gemini.");
+
+    const data = JSON.parse(txt.replace(/```json|```/g,"").trim());
+    setProgress(100);
+
+    // RENDER RESULTS
+    document.getElementById("loader").style.display = "none";
+    document.getElementById("results").style.display = "block";
+
+    const c = scoreColor;
+    document.getElementById("r-viral").textContent = data.viralScore;
+    document.getElementById("r-viral").style.color = c(data.viralScore);
+    document.getElementById("r-viral-bar").style.width = data.viralScore + "%";
+    document.getElementById("r-viral-bar").style.background = c(data.viralScore);
+    document.getElementById("r-hook").textContent = data.hookScore;
+    document.getElementById("r-hook").style.color = c(data.hookScore);
+    document.getElementById("r-ret").textContent = data.retentionScore;
+    document.getElementById("r-ret").style.color = c(data.retentionScore);
+    document.getElementById("r-eng").textContent = data.engagementScore;
+    document.getElementById("r-eng").style.color = c(data.engagementScore);
+    document.getElementById("r-summary").textContent = data.summary;
+
+    const mkInsight = (item, bg) => `<div class="iitem"><div class="iico" style="background:${bg}">${item.icon}</div><div class="itxt"><strong>${item.title}</strong>${item.desc}</div></div>`;
+    document.getElementById("r-strengths").innerHTML = (data.strengths||[]).map(s => mkInsight(s,"rgba(0,255,148,.08)")).join("");
+    document.getElementById("r-weaknesses").innerHTML = (data.weaknesses||[]).map(w => mkInsight(w,"rgba(255,180,0,.08)")).join("");
+
+    document.getElementById("r-actions").innerHTML = (data.actions||[]).map((a,i) =>
+      `<div class="aitem"><span class="anum">0${i+1}</span>${a}</div>`).join("");
+
+    document.getElementById("r-hooks").innerHTML = (data.hooks||[]).map(h =>
+      `<div class="hitem" onclick="copyText('${h.replace(/'/g,"\\'")}',this)">"${h}" <span style="font-size:9px;letter-spacing:1px;color:#00FF94;margin-left:6px;opacity:0;transition:opacity .2s" class="hcp">✓ copié</span></div>`).join("");
+
+    document.getElementById("r-tags").innerHTML = (data.hashtags||[]).map(t =>
+      `<span class="tag">${t}</span>`).join("");
+
+    window.scrollTo({top:0, behavior:'smooth'});
+
+  } catch(e) {
+    showError(e.message || "Analyse échouée. Vérifie ta clé API et réessaie.");
   }
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: #E8E8F0; font-family: 'DM Mono', monospace; min-height: 100vh; }
+function copyText(txt, el) {
+  navigator.clipboard.writeText(txt);
+  const cp = el.querySelector(".hcp");
+  if (cp) { cp.style.opacity = "1"; setTimeout(() => cp.style.opacity = "0", 2000); }
+}
+</script>
 
-  .app { min-height: 100vh; padding: 28px 16px 60px; position: relative; overflow: hidden; }
-  .app::before { content:''; position:fixed; top:-200px; left:-200px; width:600px; height:600px; background:radial-gradient(circle,rgba(0,255,148,.06),transparent 70%); pointer-events:none; z-index:0; }
-  .app::after { content:''; position:fixed; bottom:-150px; right:-150px; width:500px; height:500px; background:radial-gradient(circle,rgba(100,60,255,.07),transparent 70%); pointer-events:none; z-index:0; }
-
-  .wrap { max-width: 640px; margin: 0 auto; position: relative; z-index: 1; }
-
-  .header { text-align: center; margin-bottom: 36px; }
-  .badge { display:inline-block; background:rgba(0,255,148,.1); border:1px solid rgba(0,255,148,.3); color:var(--g); font-size:10px; letter-spacing:3px; text-transform:uppercase; padding:6px 14px; border-radius:20px; margin-bottom:18px; }
-  h1 { font-family:'Syne',sans-serif; font-size:clamp(28px,7vw,50px); font-weight:800; line-height:1.05; letter-spacing:-2px; color:#fff; margin-bottom:10px; }
-  h1 span { color: var(--g); }
-  .sub { font-size:12px; color:#6B6B80; line-height:1.6; }
-
-  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px; margin-bottom:16px; }
-  .lbl { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#555570; margin-bottom:12px; }
-
-  /* API Key */
-  .key-row { display:flex; gap:8px; }
-  .key-input { flex:1; background:#0A0A0F; border:1px solid #2A2A3E; border-radius:10px; color:#E8E8F0; font-family:'DM Mono',monospace; font-size:12px; padding:12px 14px; outline:none; transition:border-color .2s; min-width:0; }
-  .key-input:focus { border-color:rgba(0,255,148,.4); }
-  .key-input::placeholder { color:#2A2A3E; }
-  .key-btn { background:rgba(0,255,148,.1); border:1px solid rgba(0,255,148,.3); border-radius:10px; color:var(--g); font-family:'DM Mono',monospace; font-size:11px; padding:12px 16px; cursor:pointer; white-space:nowrap; }
-  .key-saved { display:flex; align-items:center; gap:8px; background:rgba(0,255,148,.06); border:1px solid rgba(0,255,148,.15); border-radius:10px; padding:11px 14px; font-size:11px; color:#6B8B78; }
-  .key-saved strong { color:var(--g); margin-right:auto; }
-  .key-change { background:none; border:none; color:#555570; font-family:'DM Mono',monospace; font-size:10px; cursor:pointer; text-decoration:underline; }
-
-  /* Drop */
-  .dropzone { border:2px dashed #2A2A3E; border-radius:14px; padding:40px 20px; text-align:center; cursor:pointer; transition:all .2s; }
-  .dropzone:hover, .dropzone.over { border-color:rgba(0,255,148,.5); background:rgba(0,255,148,.03); }
-  .drop-icon { font-size:38px; margin-bottom:12px; }
-  .drop-title { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:#E8E8F0; margin-bottom:6px; }
-  .drop-sub { font-size:11px; color:#555570; line-height:1.7; }
+</body>
+</html>
