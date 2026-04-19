@@ -355,7 +355,7 @@ async function analyze() {
           "X-Goog-Upload-Protocol": "resumable",
           "X-Goog-Upload-Command": "start",
           "X-Goog-Upload-Header-Content-Length": selectedFile.size,
-          "X-Goog-Upload-Header-Content-Type": selectedFile.type || "video/mp4",
+          "X-Goog-Upload-Header-Content-Type": "video/mp4",
         },
         body: JSON.stringify({ file: { display_name: selectedFile.name } })
       }
@@ -380,7 +380,7 @@ async function analyze() {
     const uploadData = await uploadRes.json();
     const fileUri = uploadData?.file?.uri;
     const fileName = uploadData?.file?.name;
-    const mimeType = uploadData?.file?.mimeType || selectedFile.type || "video/mp4";
+    const mimeType = "video/mp4";
     if (!fileUri) throw new Error("URI fichier non reçu.");
 
     setStep(1); setProgress(40);
