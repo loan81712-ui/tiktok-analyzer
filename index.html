@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>TikTok Viral Analyzer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --g: #00FF94;
+    --bg: #0A0A0F;
+    --card: #111118;
+    --border: #1E1E2E;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: #E8E8F0; font-family: 'DM Mono', monospace; min-height: 100vh; }
+
+  .app { min-height: 100vh; padding: 28px 16px 60px; position: relative; overflow: hidden; }
+  .app::before { content:''; position:fixed; top:-200px; left:-200px; width:600px; height:600px; background:radial-gradient(circle,rgba(0,255,148,.06),transparent 70%); pointer-events:none; z-index:0; }
+  .app::after { content:''; position:fixed; bottom:-150px; right:-150px; width:500px; height:500px; background:radial-gradient(circle,rgba(100,60,255,.07),transparent 70%); pointer-events:none; z-index:0; }
+
+  .wrap { max-width: 640px; margin: 0 auto; position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 36px; }
+  .badge { display:inline-block; background:rgba(0,255,148,.1); border:1px solid rgba(0,255,148,.3); color:var(--g); font-size:10px; letter-spacing:3px; text-transform:uppercase; padding:6px 14px; border-radius:20px; margin-bottom:18px; }
+  h1 { font-family:'Syne',sans-serif; font-size:clamp(28px,7vw,50px); font-weight:800; line-height:1.05; letter-spacing:-2px; color:#fff; margin-bottom:10px; }
+  h1 span { color: var(--g); }
+  .sub { font-size:12px; color:#6B6B80; line-height:1.6; }
+
+  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px; margin-bottom:16px; }
+  .lbl { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#555570; margin-bottom:12px; }
+
+  /* API Key */
+  .key-row { display:flex; gap:8px; }
+  .key-input { flex:1; background:#0A0A0F; border:1px solid #2A2A3E; border-radius:10px; color:#E8E8F0; font-family:'DM Mono',monospace; font-size:12px; padding:12px 14px; outline:none; transition:border-color .2s; min-width:0; }
+  .key-input:focus { border-color:rgba(0,255,148,.4); }
+  .key-input::placeholder { color:#2A2A3E; }
+  .key-btn { background:rgba(0,255,148,.1); border:1px solid rgba(0,255,148,.3); border-radius:10px; color:var(--g); font-family:'DM Mono',monospace; font-size:11px; padding:12px 16px; cursor:pointer; white-space:nowrap; }
+  .key-saved { display:flex; align-items:center; gap:8px; background:rgba(0,255,148,.06); border:1px solid rgba(0,255,148,.15); border-radius:10px; padding:11px 14px; font-size:11px; color:#6B8B78; }
+  .key-saved strong { color:var(--g); margin-right:auto; }
+  .key-change { background:none; border:none; color:#555570; font-family:'DM Mono',monospace; font-size:10px; cursor:pointer; text-decoration:underline; }
+
+  /* Drop */
+  .dropzone { border:2px dashed #2A2A3E; border-radius:14px; padding:40px 20px; text-align:center; cursor:pointer; transition:all .2s; }
+  .dropzone:hover, .dropzone.over { border-color:rgba(0,255,148,.5); background:rgba(0,255,148,.03); }
+  .drop-icon { font-size:38px; margin-bottom:12px; }
+  .drop-title { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:#E8E8F0; margin-bottom:6px; }
+  .drop-sub { font-size:11px; color:#555570; line-height:1.7; }
